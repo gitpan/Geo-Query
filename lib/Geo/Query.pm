@@ -15,46 +15,77 @@ our @ISA = qw(Exporter);
 # This allows declaration	use Geo::Query ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
+our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+our @EXPORT = qw();
 
-our @EXPORT = qw(
-	
-);
+our $VERSION = '0.02';
 
-our $VERSION = '0.01';
+#####  FORWARD
+sub Debug($);
 
-require XSLoader;
-XSLoader::load('Geo::Query', $VERSION);
+#####  GLOBAL
+my $package = __PACKAGE__;
 
-# Preloaded methods go here.
+sub new {
+	my $type = shift;
+	my %params = @_;
+	my $self = {};
+
+	$self->{'debug' } = $params{'debug'} || 0; # 0, 1, 2
+
+	Debug "$package V$VERSION" if $self->{'debug'};
+
+	bless $self, $type;
+}
+
+sub info() {
+	my $self = shift;
+	my %args = @_;
+
+	my %info = ();
+	   $info{'version'} = $VERSION;
+
+	use LWP::Simple;
+	my $module_list = get 'http://meta.pg'.
+				'ate.net/wiki-reto/index.php?title=Perl_modules_geo-query&printable=yes';
+
+	my @lines = split /\n/, $module_list;
+	my $i = 0;
+	foreach (@lines) { $i++; last if /BEGIN SECTION 101/; }
+
+	for ($i = $i + 1; $i < $#lines + 1; $i++) {
+		chomp $lines[$i];
+		last if $lines[$i] =~ /END SECTION 101/;
+		$info{'modules'} .= $lines[$i] . "\n" if $lines[$i];
+	}
+
+	\%info;
+}
+
+sub Debug ($)  { print "[ $package ] $_[0]\n"; }
 
 1;
+
 __END__
-# Below is stub documentation for your module. You'd better edit it!
 
 =head1 NAME
 
-Geo::Query - Perl extension for querying geo data.
+Geo::Query - Perl extension for querying geo related data from different sources.
 
 =head1 SYNOPSIS
 
   use Geo::Query;
 
-  This will be the container for future Geo::Query::Foo modules.
+Library. This will be the container for future Geo::Query::Any modules.
 
-  Geo::Query::LatLong is already available and will be uploaded to CPAN just after this one.
+  Geo::Query::LatLong is already available on CPAN:
+
+  http://search.cpan.org/dist/Geo-Query-LatLong/lib/Geo/Query/LatLong.pm
 
 =head1 DESCRIPTION
 
-Stub documentation for Geo::Query, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
-
-Blah blah blah.
+A library. Returns information about the Geo-Query modules.
 
 =head2 EXPORT
 
@@ -66,14 +97,8 @@ None by default.
 
 Geo::Query::LatLong
 
-Mention other useful documentation such as the documentation of
-related modules or operating system documentation (such as man pages
-in UNIX), or any relevant external documentation such as RFCs or
-standards.
+http://meta.pgate.net/perl-modules/
 
-If you have a mailing list set up for your module, mention it here.
-
-If you have a web site set up for your module, mention it here.
 
 =head1 AUTHOR
 
@@ -81,11 +106,10 @@ Reto Schaer, E<lt>reto@localdomainE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by root
+Copyright (C) 2007 by reto
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,
 at your option, any later version of Perl 5 you may have available.
-
 
 =cut

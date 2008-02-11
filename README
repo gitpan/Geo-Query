@@ -1,5 +1,5 @@
-Geo-Query version 0.01
-======================
+Geo-Query
+=========
 
 This will be the container for future Geo::Query::Any modules.
 
@@ -24,7 +24,7 @@ COPYRIGHT AND LICENCE
 
 Put the correct copyright and licence information here.
 
-Copyright (C) 2007 by reto
+Copyright (C) 2007 - 2008 by reto
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

@@ -19,7 +19,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 #####  FORWARD
 sub Debug($);
@@ -37,6 +37,22 @@ sub new {
 	Debug "$package V$VERSION" if $self->{'debug'};
 
 	bless $self, $type;
+}
+
+sub distance() {
+	my $self = shift;
+	my %args = @_;
+	$args{'lat1'} ||= 0;
+	$args{'lat2'} ||= 0;
+	$args{'lng1'} ||= 0;
+	$args{'lng2'} ||= 0;
+
+	use Math::Trig;
+
+	my %hash = ();
+	$hash{'d'} = acos(sin($args{'lat1'})*sin($args{'lat2'})+cos($args{'lat1'})*cos($args{'lat2'})*cos($args{'lng1'}-$args{'lng2'}));
+	$hash{'km'} = sprintf('%.2f', 40074 / 360 * $hash{'d'});
+	\%hash;
 }
 
 sub info() {
@@ -79,13 +95,24 @@ Geo::Query - Perl extension for querying geo related data from different sources
 
 Library. This will be the container for future Geo::Query::Any modules.
 
-  Geo::Query::LatLong is already available on CPAN:
+=head2 Calculating distance
+
+  $geo = Geo::Query->new();
+  $d = $geo->distance(
+  	lat1 => 47.463173, lng1 => 9.0005,
+  	lat2 => 47.499879, lng2 => 8.72616
+  );
+  print "Distance is ", $d->{'km'}, " kilometers\n";
+
+=head1 Related Modules
+
+B<Geo::Query::LatLong>
 
   http://search.cpan.org/dist/Geo-Query-LatLong/lib/Geo/Query/LatLong.pm
 
 =head1 DESCRIPTION
 
-A library. Returns information about the Geo-Query modules.
+Calculates distances. Installs related Geo-Quey modules. Returns information about the Geo-Query modules.
 
 =head2 EXPORT
 
@@ -99,6 +126,8 @@ Geo::Query::LatLong
 
 http://meta.pgate.net/perl-modules/
 
+http://williams.best.vwh.net/avform.htm#Dist
+
 
 =head1 AUTHOR
 
@@ -106,10 +135,10 @@ Reto Schaer, E<lt>reto@localdomainE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 by reto
+Copyright (C) 2007 - 2008 by reto
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.3 or,
+it under the same terms as Perl itself, either Perl version 5.8.x or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut

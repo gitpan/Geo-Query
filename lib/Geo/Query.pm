@@ -19,7 +19,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw() ] );
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw();
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 #####  FORWARD
 sub Debug($);
@@ -50,8 +50,23 @@ sub distance() {
 	use Math::Trig;
 
 	my %hash = ();
-	$hash{'d'} = acos(sin($args{'lat1'})*sin($args{'lat2'})+cos($args{'lat1'})*cos($args{'lat2'})*cos($args{'lng1'}-$args{'lng2'}));
-	$hash{'km'} = sprintf('%.2f', 40074 / 360 * $hash{'d'});
+
+	my $R = 6371; # -- km
+	my $dLat = deg2rad(abs($args{'lat2'} - $args{'lat1'}));
+	my $dLon = deg2rad(abs($args{'lng2'} - $args{'lng1'}));
+
+	my $lat1 = deg2rad($args{'lat1'});
+	my $lat2 = deg2rad($args{'lat2'});
+
+	my $a = sin($dLat / 2) * sin($dLat / 2) + cos($lat1) * cos($lat2) * sin($dLon / 2) * sin($dLon / 2);
+
+	my $c = 2 * atan2(sqrt(abs($a)), sqrt(1 - $a));
+
+	my $d = $R * $c;
+
+	$hash{'d'} = $c; # -- multiply with your own radius
+	$hash{'km'} = sprintf('%.2f', $d);
+
 	\%hash;
 }
 
@@ -104,6 +119,8 @@ Library. This will be the container for future Geo::Query::Any modules.
   );
   print "Distance is ", $d->{'km'}, " kilometers\n";
 
+This returns a rough estimation of the distance between two points. For more possibilities in calculating distances please take a look on Geo::Distance - Calculate Distances and Closest Locations.
+
 =head1 Related Modules
 
 B<Geo::Query::LatLong>
@@ -124,9 +141,13 @@ None by default.
 
 Geo::Query::LatLong
 
+http://www.xn--schrsoft-2za.ch
+
 http://meta.pgate.net/perl-modules/
 
-http://williams.best.vwh.net/avform.htm#Dist
+http://www.movable-type.co.uk/scripts/latlong.html
+
+http://search.cpan.org/dist/Geo-Distance/Distance.pm
 
 
 =head1 AUTHOR
@@ -135,7 +156,7 @@ Reto Schaer, E<lt>reto@localdomainE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 - 2008 by reto
+Copyright (C) 2007 - 2010 by reto
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.x or,
